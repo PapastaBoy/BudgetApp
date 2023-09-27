@@ -1,9 +1,19 @@
+import Exceptions.InvalidAmountException;
+
 import java.util.Random;
 
+/**
+ * The standard Account class is used to control each account in the app.
+ * Account stores an account number that is randomly generated using {@link Random}
+ * and ascii conversion to generate a unique and secure ID.
+ * Also stores the balance in the account currently and all transactions made before committing
+ * them to a csv file for later use/retrieval
+ * @see java.util.Random
+ */
 public class Account {
 
     // Unique identifier per account
-    private String accountNum;
+    private final String accountNum;
     // Balance stored in account
     double accountBal;
 
@@ -26,6 +36,19 @@ public class Account {
      */
     public String getAccountNum() {
         return accountNum;
+    }
+
+    /**
+     * Adds the given value to the accountBal.
+     * Throws {@link InvalidAmountException} if the value given is not greater than zero
+     * @param amount
+     * @throws InvalidAmountException
+     */
+    public void addBal(double amount) throws InvalidAmountException {
+        if (amount <= 0) {
+            throw new InvalidAmountException("Amount must be greater than 0.00");
+        }
+        accountBal += amount;
     }
 
     /**
