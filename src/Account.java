@@ -1,4 +1,5 @@
 import Exceptions.InvalidAmountException;
+import Exceptions.UnexpectedOverdraftException;
 
 import java.util.Random;
 
@@ -13,29 +14,42 @@ import java.util.Random;
 public class Account {
 
     // Unique identifier per account
-    private final String accountNum;
+    private final String uniqueIdentity;
     // Balance stored in account
+    int accNum;
+    int sortcode;
     double accountBal;
+    double overdraft = 0;
 
     /**
      * Constructor
      *
      * @implNote This constructor is used to initialise all accounts
-     * with an initialBal and accountNumber. Account number is generated
+     * with an initialBal and uniqueIdentity. Account number is generated
      * randomly and is unique to each account.
+     * <br><br>
+     * A secondary version of the constructor exists for if an account has
+     * been made and the account has a pre-arranged overdraft
      */
-    public Account(int initialBal) {
+    public Account(double initialBal, int accNum, int sortcode) {
 
         accountBal = initialBal;
-        accountNum = accNumGen();
+        uniqueIdentity = accIdentityGen();
+    }
+    
+    public Account(double initialBal, int accNum, int sortcode, double allowedOverdraft) {
+
+        accountBal = initialBal;
+        uniqueIdentity = accIdentityGen();
+        overdraft = allowedOverdraft;
     }
 
     /**
      * Used to fetch the account number from the account
      * @return String
      */
-    public String getAccountNum() {
-        return accountNum;
+    public String getUniqueIdentity() {
+        return uniqueIdentity;
     }
 
     /**
@@ -52,13 +66,31 @@ public class Account {
     }
 
     /**
+     * Removes the amount given from the current account balance <br>
+     * Throws {@link UnexpectedOverdraftException} if the value given greater than the accountBalance
+     * @param amount
+     * @throws UnexpectedOverdraftException
+     */
+    public void remBal(double amount) throws UnexpectedOverdraftException {
+        if (amount <= 0) {
+            try {
+                throw new InvalidAmountException("Amount must be greater than 0.00");
+            } catch (InvalidAmountException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (amount > accountBal) throw new UnexpectedOverdraftException(uniqueIdentity);
+        accountBal -= amount;
+    }
+
+    /**
      * uses {@link Random} to generate ascii values to be sent
      * to a stringBuilder to generate a unique and secure account
      * number.
      * @return String
      */
     @org.jetbrains.annotations.NotNull
-    private String accNumGen() {
+    public String accIdentityGen() {
         // Create random seed
         Random random = new Random();
 
